@@ -6,40 +6,46 @@
 <title>Kiểm tra AHP</title>
 <meta name="description" content="Công cụ hỗ trợ sinh viên kiểm tra việc tính trọng số phương án, trọng số tiêu chí và tổng điểm có trọng số theo quy trình phân tích thứ bậc (AHP).">
 <style>
+/* Bảng màu: navy (chủ đạo) và đỏ, ưu tiên tông pastel.
+   --accent* = navy (nút, liên kết, ô kết quả); --red* = đỏ (nhãn Bước, khung lưu ý).
+   --bad = đỏ đậm chỉ dùng báo lỗi; --good = xanh lá cho dấu ✓; --warn = vàng cho cảnh báo "chưa ổn định". */
 :root{
-  --bg:#f6f7f9; --card:#ffffff; --text:#1d2330; --muted:#5d6678; --line:#dde1e8;
-  --accent:#0b6e69; --accent-soft:#e3f2f1; --warn:#9a5b00; --warn-soft:#fff3dc;
-  --bad:#b42318; --bad-soft:#fdecea; --good:#1a7f37; --input:#ffffff; --head:#eef1f5;
+  --bg:#f4f6fb; --card:#ffffff; --text:#1b2440; --muted:#59647f; --line:#d8deeb; --title:#26375f;
+  --accent:#3a4f82; --on-accent:#ffffff; --accent-soft:#e3e9f6; --head:#eaeef8;
+  --red:#962f37; --red-soft:#fbeaeb; --red-badge:#f2cdd0;
+  --warn:#8a5a00; --warn-soft:#fff3dc; --bad:#b42318; --bad-soft:#fde8e8; --good:#1a7f37; --input:#ffffff;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#14171c; --card:#1c2027; --text:#e6e9ef; --muted:#9aa3b2; --line:#2f3540;
-    --accent:#4fc2b9; --accent-soft:#1d3634; --warn:#f0b44c; --warn-soft:#3a2e17;
-    --bad:#ff8a80; --bad-soft:#3b1f1d; --good:#6fd38a; --input:#15181d; --head:#242a33;
+    --bg:#11172a; --card:#182038; --text:#e5e9f3; --muted:#9ba6c0; --line:#2c3757; --title:#c9d5f2;
+    --accent:#9db1e0; --on-accent:#14203d; --accent-soft:#25335a; --head:#212c4b;
+    --red:#f0a9af; --red-soft:#3a2230; --red-badge:#5a2a33;
+    --warn:#f0b44c; --warn-soft:#3a2e17; --bad:#ff8a80; --bad-soft:#3b1f22; --good:#6fd38a; --input:#121a30;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#14171c; --card:#1c2027; --text:#e6e9ef; --muted:#9aa3b2; --line:#2f3540;
-  --accent:#4fc2b9; --accent-soft:#1d3634; --warn:#f0b44c; --warn-soft:#3a2e17;
-  --bad:#ff8a80; --bad-soft:#3b1f1d; --good:#6fd38a; --input:#15181d; --head:#242a33;
+  --bg:#11172a; --card:#182038; --text:#e5e9f3; --muted:#9ba6c0; --line:#2c3757; --title:#c9d5f2;
+  --accent:#9db1e0; --on-accent:#14203d; --accent-soft:#25335a; --head:#212c4b;
+  --red:#f0a9af; --red-soft:#3a2230; --red-badge:#5a2a33;
+  --warn:#f0b44c; --warn-soft:#3a2e17; --bad:#ff8a80; --bad-soft:#3b1f22; --good:#6fd38a; --input:#121a30;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
 main{max-width:1100px;margin:0 auto;padding:24px 16px 64px}
-h1{font-size:1.6rem;margin:0 0 4px}
-h2{font-size:1.2rem;margin:0 0 12px}
+h1{font-size:1.6rem;margin:0 0 4px;color:var(--title)}
+h2{font-size:1.2rem;margin:0 0 12px;color:var(--title)}
 h3{font-size:1.02rem;margin:0 0 10px}
 p{margin:0 0 10px;text-align:justify}
 footer{text-align:justify}
 .muted{color:var(--muted)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin:16px 0}
-.step{display:inline-block;background:var(--accent);color:#fff;border-radius:999px;font-size:.78rem;padding:1px 10px;margin-right:8px;vertical-align:2px}
+.step{display:inline-block;background:var(--red-badge);color:var(--red);font-weight:700;border-radius:999px;font-size:.78rem;padding:1px 10px;margin-right:8px;vertical-align:2px}
 .row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
 label{font-size:.85rem;color:var(--muted);display:block;margin-bottom:3px}
 input,select,textarea{font:inherit;color:var(--text);background:var(--input);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
 textarea{width:100%;min-height:70px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:0}
-button{font:inherit;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:6px;padding:7px 14px}
+button{font:inherit;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);border-radius:6px;padding:7px 14px}
 button.ghost{background:transparent;color:var(--accent)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media (max-width:720px){.grid2{grid-template-columns:1fr}}
@@ -64,8 +70,10 @@ input.err{border-color:var(--bad);background:var(--bad-soft)}
 .pairhead{font-size:.8rem;color:var(--muted)}
 details{margin:8px 0}
 summary{cursor:pointer;color:var(--accent);font-weight:600}
-.note{background:var(--warn-soft);color:var(--text);border-radius:8px;padding:8px 12px;font-size:.9rem;margin:8px 0}
+.note{background:var(--red-soft);color:var(--text);border-radius:8px;padding:8px 12px;font-size:.9rem;margin:8px 0}
+.note b{color:var(--red)}
 .note.bad{background:var(--bad-soft)}
+.note.bad b{color:var(--bad)}
 .badge{display:inline-block;border-radius:999px;padding:0 8px;font-size:.8rem;font-weight:600}
 .badge.ok{background:var(--accent-soft);color:var(--good)}
 .badge.warn{background:var(--warn-soft);color:var(--warn)}
@@ -88,6 +96,7 @@ footer{color:var(--muted);font-size:.85rem;margin-top:24px}
 .setting .ctl select{width:100%}
 .setting .note{margin:0;padding:12px 14px}
 .note.info{background:var(--accent-soft)}
+.note.info b{color:var(--accent)}
 @media (max-width:640px){.setting{grid-template-columns:1fr}}
 .scaletbl td{white-space:normal;vertical-align:top}
 .scaletbl td.l{min-width:120px}
@@ -114,6 +123,7 @@ td.ans input.no{border-color:var(--bad);background:var(--bad-soft)}
   <header>
     <h1>Kiểm tra tính toán AHP – lựa chọn phương án</h1>
     <p class="muted">Nhập điểm so sánh cặp đôi → trang tính trọng số của từng phương án theo từng tiêu chí, trọng số của các tiêu chí, điểm có trọng số và tổng điểm của từng phương án. Dùng để đối chiếu với bài làm tay hoặc Excel.</p>
+    <p class="note"><b>Lưu ý:</b> điểm và đáp án bạn nhập được lưu trên trình duyệt của bạn, nên lần sau mở lại trang vẫn còn. Muốn làm bài mới từ đầu, hãy bấm <b>“Xóa hết điểm”</b> và <b>“Xóa đáp án đã nhập”</b> ở Bước 0.</p>
   </header>
 
   <!-- Bước 0: thiết lập -->
