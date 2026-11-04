@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kiểm tra AHP</title>
+<meta name="description" content="Công cụ hỗ trợ sinh viên kiểm tra việc tính trọng số phương án, trọng số tiêu chí và tổng điểm có trọng số theo quy trình phân tích thứ bậc (AHP).">
+<style>
+:root{
+  --bg:#f6f7f9; --card:#ffffff; --text:#1d2330; --muted:#5d6678; --line:#dde1e8;
+  --accent:#0b6e69; --accent-soft:#e3f2f1; --warn:#9a5b00; --warn-soft:#fff3dc;
+  --bad:#b42318; --bad-soft:#fdecea; --good:#1a7f37; --input:#ffffff; --head:#eef1f5;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14171c; --card:#1c2027; --text:#e6e9ef; --muted:#9aa3b2; --line:#2f3540;
+    --accent:#4fc2b9; --accent-soft:#1d3634; --warn:#f0b44c; --warn-soft:#3a2e17;
+    --bad:#ff8a80; --bad-soft:#3b1f1d; --good:#6fd38a; --input:#15181d; --head:#242a33;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14171c; --card:#1c2027; --text:#e6e9ef; --muted:#9aa3b2; --line:#2f3540;
+  --accent:#4fc2b9; --accent-soft:#1d3634; --warn:#f0b44c; --warn-soft:#3a2e17;
+  --bad:#ff8a80; --bad-soft:#3b1f1d; --good:#6fd38a; --input:#15181d; --head:#242a33;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:1.6rem;margin:0 0 4px}
+h2{font-size:1.2rem;margin:0 0 12px}
+h3{font-size:1.02rem;margin:0 0 10px}
+p{margin:0 0 10px}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin:16px 0}
+.step{display:inline-block;background:var(--accent);color:#fff;border-radius:999px;font-size:.78rem;padding:1px 10px;margin-right:8px;vertical-align:2px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+label{font-size:.85rem;color:var(--muted);display:block;margin-bottom:3px}
+input,select,textarea{font:inherit;color:var(--text);background:var(--input);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+textarea{width:100%;min-height:70px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:0}
+button{font:inherit;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:6px;padding:7px 14px}
+button.ghost{background:transparent;color:var(--accent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:720px){.grid2{grid-template-columns:1fr}}
+.tablewrap{overflow-x:auto;margin:8px 0}
+table{border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:5px 9px;text-align:right;white-space:nowrap}
+th{background:var(--head);font-weight:600}
+th:first-child,td.l{text-align:left}
+td.hl,th.hl{background:var(--accent-soft);font-weight:700}
+td.neg{color:var(--bad)}
+.pairs{display:grid;gap:6px;margin:6px 0 12px}
+.pair{display:grid;grid-template-columns:minmax(90px,1fr) 70px 22px 70px minmax(90px,1fr) minmax(120px,1.2fr);gap:8px;align-items:center}
+.pair .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.pair .nm.r{text-align:right}
+.pair input{width:100%;text-align:center}
+.pair .vs{text-align:center;color:var(--muted)}
+.pair .res{font-size:.85rem;color:var(--muted)}
+.pair.err input{border-color:var(--bad);background:var(--bad-soft)}
+.pair.err .res{color:var(--bad);font-weight:600}
+input.err{border-color:var(--bad);background:var(--bad-soft)}
+@media (max-width:640px){.pair{grid-template-columns:1fr 60px 16px 60px 1fr}.pair .res{grid-column:1/-1}.pairhead span:last-child{display:none}}
+.pairhead{font-size:.8rem;color:var(--muted)}
+details{margin:8px 0}
+summary{cursor:pointer;color:var(--accent);font-weight:600}
+.note{background:var(--warn-soft);color:var(--text);border-radius:8px;padding:8px 12px;font-size:.9rem;margin:8px 0}
+.note.bad{background:var(--bad-soft)}
+.badge{display:inline-block;border-radius:999px;padding:0 8px;font-size:.8rem;font-weight:600}
+.badge.ok{background:var(--accent-soft);color:var(--good)}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.bars{display:grid;gap:8px;margin-top:12px}
+.bar{display:grid;grid-template-columns:minmax(80px,160px) 1fr 70px;gap:10px;align-items:center}
+.bar .track{background:var(--head);border-radius:4px;height:18px;overflow:hidden}
+.bar .fill{background:var(--accent);height:100%}
+.bar .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.crit-card{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+.crit-card:first-of-type{border-top:0;padding-top:0;margin-top:0}
+footer{color:var(--muted);font-size:.85rem;margin-top:24px}
+.check{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;margin-top:12px;padding:12px;border:1px dashed var(--line);border-radius:8px}
+.check label.inline{display:inline-flex;gap:6px;align-items:center;font-size:.92rem;color:var(--text);margin:0}
+.rv{margin:6px 0 10px;font-size:.88rem}
+.scaletbl td{white-space:normal;vertical-align:top}
+.scaletbl input{width:100%}
+.scaletbl td.lv{width:110px}
+.scaletbl td.act{width:44px;text-align:center}
+.scaletbl button{padding:2px 8px}
+td.ans{background:var(--accent-soft);text-align:left}
+td.ans input{width:86px;text-align:right;padding:3px 6px}
+td.ans input.ok{border-color:var(--good)}
+td.ans input.no{border-color:var(--bad);background:var(--bad-soft)}
+.mk{display:inline-block;min-width:16px;margin-left:6px;font-weight:700}
+.mk.ok{color:var(--good)}
+.mk.no{color:var(--bad)}
+.mk small{font-weight:400;color:var(--muted)}
+#score{position:sticky;top:0;z-index:5;display:none;background:var(--card);border:1px solid var(--accent);border-radius:10px;padding:10px 16px;margin:16px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+#score b{font-size:1.1rem}
+@media print{button,.noprint{display:none!important}details{display:block}details>*{display:block}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Kiểm tra tính toán AHP – lựa chọn phương án</h1>
+    <p class="muted">Nhập điểm so sánh cặp đôi → trang tính trọng số của từng phương án theo từng tiêu chí, trọng số của các tiêu chí, điểm có trọng số và tổng điểm của từng phương án. Dùng để đối chiếu với bài làm tay hoặc Excel.</p>
+  </header>
+
+  <!-- Bước 0: thiết lập -->
+  <section class="card">
+    <h2><span class="step">Bước 0</span>Thiết lập bài toán</h2>
+    <div class="grid2">
+      <div>
+        <label for="alts">Các phương án (ứng viên) – mỗi dòng một tên (2–9)</label>
+        <textarea id="alts"></textarea>
+      </div>
+      <div>
+        <label for="crits">Các tiêu chí – mỗi dòng một tên (2–9)</label>
+        <textarea id="crits"></textarea>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button id="apply">Cập nhật danh sách</button>
+      <span id="listMsg" style="font-size:.88rem;flex-basis:100%;order:99"></span>
+      <div>
+        <label for="scaleMax">Thang điểm: từ 1 đến</label>
+        <input id="scaleMax" inputmode="decimal" style="width:80px;text-align:center">
+      </div>
+      <button id="loadEx" class="ghost">Nạp ví dụ Tom – Dick – Harry</button>
+      <button id="clearAll" class="ghost">Xóa hết điểm</button>
+      <div>
+        <label for="pick">Lấy trọng số ở lần bình phương thứ</label>
+        <select id="pick">
+          <option value="1">1</option><option value="2" selected>2</option><option value="3">3</option>
+          <option value="4">4</option><option value="0">Lần cuối (đã hội tụ)</option>
+        </select>
+      </div>
+      <button id="print" class="ghost">In / lưu PDF</button>
+    </div>
+    <div class="check">
+      <span id="studentNote" style="display:none">Nhập đáp án của bạn vào các ô màu xanh ở Bước 1–4; trang chấm ✓/✗ từng ô (sai số cho phép ±0,001).</span>
+      <span id="teacherNote" style="display:none" class="badge ok">Chế độ giảng viên</span>
+      <label class="inline teacher-only"><input type="checkbox" id="chkOn"> <b>Chế độ chấm bài</b> – tôi tự nhập đáp án, trang chấm đúng/sai</label>
+      <label class="inline teacher-only">Sai số cho phép ±
+        <select id="chkTol">
+          <option value="0.0001">0,0001</option><option value="0.0005">0,0005</option>
+          <option value="0.001" selected>0,001</option><option value="0.005">0,005</option>
+        </select>
+      </label>
+      <label class="inline teacher-only"><input type="checkbox" id="chkReveal"> Hiện đáp án đúng</label>
+      <button id="chkClear" class="ghost">Xóa đáp án đã nhập</button>
+    </div>
+    <p class="muted" style="margin-top:10px;font-size:.88rem">Ví dụ trong slide lấy trọng số ở <b>lần bình phương thứ 2</b> (lần 3 dùng để đối chiếu “So sánh 3/2”). Dữ liệu bạn nhập được lưu tạm trên trình duyệt của bạn.</p>
+
+    <details open>
+      <summary id="scaleSummary">Thang điểm trong so sánh cặp đôi</summary>
+      <div id="scaleBox"></div>
+      <p class="muted" style="font-size:.88rem"><b>Cách nhập:</b> mỗi cặp có hai ô như bảng trong slide. Ghi điểm vào ô của yếu tố được đánh giá cao hơn, ô của yếu tố kém hơn luôn là 1 (ví dụ “Tom 1 – Dick 4”: Dick hơn Tom mức 4). Hai ô đều là 1 nghĩa là như nhau. Mỗi ô nhận số từ 1 đến điểm tối đa của thang đã khai báo, có thể dùng số thập phân (1,2). Cặp nào vượt thang hoặc có ô thấp hơn khác 1 sẽ bị tô đỏ và chưa được tính. Ma trận được lập theo hàng ngang: ô (hàng Tom, cột Dick) = điểm Tom / điểm Dick = 1/4.</p>
+    </details>
+  </section>
+
+  <div id="score" aria-live="polite"></div>
+
+  <!-- Bước 1 -->
+  <section class="card">
+    <h2><span class="step">Bước 1</span>Trọng số của từng phương án theo từng tiêu chí</h2>
+    <div id="altSections"></div>
+  </section>
+
+  <!-- Bước 2 -->
+  <section class="card">
+    <h2><span class="step">Bước 2</span>Trọng số của các tiêu chí (so với mục tiêu)</h2>
+    <div id="critSection"></div>
+  </section>
+
+  <!-- Bước 3 -->
+  <section class="card">
+    <h2><span class="step">Bước 3</span>Điểm từng tiêu chí (có trọng số) của từng phương án</h2>
+    <p class="muted">Điểm đã có trọng số = trọng số của tiêu chí × điểm (trọng số) của phương án theo tiêu chí đó.</p>
+    <div id="step3"></div>
+  </section>
+
+  <!-- Bước 4 -->
+  <section class="card">
+    <h2><span class="step">Bước 4</span>Tổng điểm đã có trọng số của từng phương án</h2>
+    <div id="step4"></div>
+  </section>
+
+  <footer>
+    Quy trình tính: lập ma trận so sánh cặp đôi → bình phương ma trận liên tiếp → cộng theo hàng, chia cho tổng để ra trọng số → so sánh trọng số giữa hai lần liên tiếp. Phần “Tỷ số nhất quán CR” là thông tin tham khảo bổ sung theo Saaty (CR ≤ 0,10 thường được coi là chấp nhận được), không có trong ví dụ trên slide.
+  </footer>
+</main>
+
+<script src="ahp.js"></script>
+<script>
+(function(){
+  var KEY = 'ahp-checker-v1';
+  var EXAMPLE = {
+    alts: ['Tom', 'Dick', 'Harry'],
+    crits: ['Kinh nghiệm', 'Trình độ', 'Khả năng lãnh đạo', 'Tuổi'],
+    // điểm cặp đôi [trái, phải] theo thứ tự (0,1), (0,2), (1,2) … – lấy từ các slide ví dụ
+    altPairs: [
+      { '0-1': ['1', '4'], '0-2': ['4', '1'], '1-2': ['9', '1'] },   // Kinh nghiệm
+      { '0-1': ['3', '1'], '0-2': ['1', '5'], '1-2': ['1', '7'] },   // Trình độ
+      { '0-1': ['5', '1'], '0-2': ['9', '1'], '1-2': ['4', '1'] },   // Khả năng lãnh đạo
+      { '0-1': ['1', '3'], '0-2': ['5', '1'], '1-2': ['9', '1'] }    // Tuổi
+    ],
+    critPairs: { '0-1': ['4', '1'], '0-2': ['3', '1'], '0-3': ['7', '1'],
+                 '1-2': ['1', '3'], '1-3': ['3', '1'], '2-3': ['5', '1'] },
+    pick: 2,
+    scaleMax: 9
+  };
+
+  // Bảng giải thích có sẵn cho các thang giảng viên đã duyệt (khóa = điểm tối đa của thang).
+  // Thêm thang mới: thêm một mục theo đúng mẫu dưới đây, nội dung chép nguyên văn từ tài liệu gốc.
+  // Thang không có trong danh sách: sinh viên tự ghi bảng giải thích.
+  var SCALE_TABLES = {
+    '9': {
+      source: 'Thang điểm cơ bản trong so sánh cặp đôi (slide 48)',
+      rows: [
+        ['1', 'Quan trọng như nhau', '2 yếu tố có đóng góp như nhau cho việc thực hiện mục tiêu'],
+        ['3', 'Quan trọng vừa phải', 'Kinh nghiệm và suy xét cho thấy yếu tố này có tầm quan trọng hơn một yếu tố khác một chút'],
+        ['5', 'Rất quan trọng', 'Kinh nghiệm và suy xét cho thấy yếu tố này có tầm quan trọng hơn một yếu tố khác rất nhiều'],
+        ['7', 'Cực kỳ quan trọng', 'Thực tế cho thấy yếu tố này cực kỳ quan trọng so với một yếu tố khác'],
+        ['9', 'Vô cùng quan trọng', 'Thực tế khẳng định một yếu tố quan trọng hơn hẳn một yếu tố khác (mức độ quan trọng cao nhất)']
+      ],
+      note: 'Mức độ quan trọng 2, 4,6 hoặc 1,1; 1,2; … cũng có thể được sử dụng'
+    }
+  };
+
+  var state = load() || clone(EXAMPLE);
+  var results = { alt: [], crit: null };
+  var correct = {}; // khóa ô đáp án → giá trị đúng do trang tính (chỉ các ô đang hiển thị)
+  var $ = function (id) { return document.getElementById(id); };
+  ensureCheck();
+
+  // ---------- chế độ chấm bài ----------
+  // Link thường (sinh viên): luôn chấm bài, không có nút tắt / hiện đáp án.
+  // Link có ?gv (giảng viên): đầy đủ các nút.
+  function isTeacher() { try { return new URLSearchParams(location.search).has('gv'); } catch (e) { return false; } }
+  function ensureCheck() {
+    if (!state.check) state.check = { on: false, tol: 0.001, reveal: false };
+    if (!state.ans) state.ans = {};
+    if (!(state.scaleMax > 1)) state.scaleMax = 9;
+    if (!state.scaleDefs) state.scaleDefs = {}; // bảng giải thích sinh viên tự ghi, theo từng thang
+    if (!state.revealed) state.revealed = {};   // các bảng sinh viên đã mở đáp án
+    if (!isTeacher()) { state.check.on = true; state.check.reveal = false; state.check.tol = 0.001; }
+  }
+  function applyRole() {
+    var t = isTeacher();
+    document.querySelectorAll('.teacher-only').forEach(function (el) { el.style.display = t ? '' : 'none'; });
+    $('studentNote').style.display = t ? 'none' : '';
+    $('teacherNote').style.display = t ? '' : 'none';
+  }
+
+  // ---------- bảng giải thích thang điểm ----------
+  function scaleKey() { return String(state.scaleMax); }
+  function defaultDefs() { return [['1', '', ''], [scaleKey().replace('.', ','), '', '']]; }
+  function renderScale() {
+    var key = scaleKey(), maxTxt = key.replace('.', ','), t = SCALE_TABLES[key], h = '';
+    $('scaleSummary').textContent = 'Thang điểm trong so sánh cặp đôi (từ 1 đến ' + maxTxt + ')';
+    var head = '<tr><th>Mức độ quan trọng</th><th style="text-align:left">Định nghĩa</th><th style="text-align:left">Giải thích</th>';
+    if (t) {
+      h += '<p class="muted" style="font-size:.88rem;margin-top:8px">' + esc(t.source) + '</p>';
+      h += '<div class="tablewrap"><table class="scaletbl">' + head + '</tr>';
+      t.rows.forEach(function (r) {
+        h += '<tr><td>' + esc(r[0]) + '</td><td class="l">' + esc(r[1]) + '</td><td class="l">' + esc(r[2]) + '</td></tr>';
+      });
+      if (t.note) h += '<tr><td colspan="3" class="l">' + esc(t.note) + '</td></tr>';
+      h += '</table></div>';
+    } else {
+      var rows = state.scaleDefs[key] || defaultDefs();
+      h += '<p style="font-size:.9rem;margin-top:8px">Chưa có bảng giải thích có sẵn cho thang 1–' + esc(maxTxt) +
+        '. Hãy tự ghi định nghĩa và giải thích cho các mức điểm bạn dùng (có thể chỉ ghi các mốc chính, ví dụ như thang 1–9 chỉ định nghĩa 1, 3, 5, 7, 9). Bảng này được lưu cùng bài làm và in kèm khi lưu PDF.</p>';
+      h += '<div class="tablewrap"><table class="scaletbl">' + head + '<th class="noprint"></th></tr>';
+      rows.forEach(function (r, i) {
+        h += '<tr><td class="lv"><input data-sd="' + i + '-0" value="' + esc(r[0]) + '" aria-label="Mức điểm"></td>' +
+          '<td class="l"><input data-sd="' + i + '-1" value="' + esc(r[1]) + '" aria-label="Định nghĩa"></td>' +
+          '<td class="l"><input data-sd="' + i + '-2" value="' + esc(r[2]) + '" aria-label="Giải thích"></td>' +
+          '<td class="act noprint"><button class="ghost" data-sdel="' + i + '" title="Xóa dòng" aria-label="Xóa dòng">×</button></td></tr>';
+      });
+      h += '</table></div><button class="ghost noprint" id="sdAdd">+ Thêm mức</button>';
+    }
+    h += '<p class="muted" style="font-size:.88rem;margin-top:8px">Với mọi thang: điểm 1 = hai yếu tố như nhau; điểm ' + esc(maxTxt) + ' = mức cao nhất của thang đã khai báo.</p>';
+    $('scaleBox').innerHTML = h;
+  }
+  function editDefs() {
+    var key = scaleKey();
+    if (!state.scaleDefs[key]) state.scaleDefs[key] = defaultDefs();
+    return state.scaleDefs[key];
+  }
+
+  // ---------- quy tắc nhập điểm một cặp ----------
+  // Mỗi ô: số từ 1 đến điểm tối đa của thang; ô của yếu tố kém hơn phải là 1.
+  function pairIssue(v) {
+    v = v || ['', ''];
+    var l = AHP.parseNum(v[0]), r = AHP.parseNum(v[1]), max = Number(state.scaleMax);
+    if (!isFinite(l) || !isFinite(r)) return 'chưa nhập đủ / không phải số';
+    if (l < 1 || r < 1) return 'điểm phải từ 1 trở lên';
+    if (l > max || r > max) return 'vượt thang (tối đa ' + String(max).replace('.', ',') + ')';
+    if (Math.abs(Math.min(l, r) - 1) > 1e-12) return 'ô của yếu tố kém hơn phải là 1';
+    return '';
+  }
+  function checking() { return state.check.on; }
+  function hiding() { return state.check.on && !state.check.reveal; }
+  // Bảng chứa ô đáp án: a0, a1… (Bước 1, theo từng tiêu chí), c (Bước 2), w (Bước 3), t (Bước 4)
+  function tidOf(key) { return key[0] === 'w' ? 'w' : key[0] === 't' ? 't' : key.split('-')[0]; }
+  // Đáp án một bảng được hiện khi giảng viên bật "Hiện đáp án đúng" hoặc sinh viên đã mở bảng đó
+  function shown(tid) { return !checking() || state.check.reveal || !!state.revealed[tid]; }
+  function judge(key) {
+    var v = state.ans[key];
+    if (v == null || String(v).trim() === '') return null;
+    if (!isFinite(correct[key])) return null; // chưa đủ số liệu để chấm
+    var x = AHP.parseNum(v);
+    if (!isFinite(x)) return false;
+    return Math.abs(x - correct[key]) <= Number(state.check.tol) + 1e-12;
+  }
+  function cls(j) { return j === true ? 'ok' : j === false ? 'no' : ''; }
+  function markHtml(key) {
+    var j = judge(key);
+    var rev = shown(tidOf(key)) && isFinite(correct[key]) ? ' <small>(' + f4(correct[key]) + ')</small>' : '';
+    return (j === true ? '✓' : j === false ? '✗' : '') + rev;
+  }
+  // Ô kết quả: bình thường hiện giá trị; ở chế độ chấm bài là ô để sinh viên nhập đáp án.
+  // val không xác định (chưa đủ số liệu ở bước trước) → ô bị khóa, kèm lời nhắc waitMsg.
+  function ansCell(key, val, waitMsg) {
+    correct[key] = val;
+    if (!checking()) return '<td class="hl">' + f4(val) + '</td>';
+    if (!isFinite(val)) {
+      return '<td class="ans"><input disabled placeholder="—" value="' + esc(state.ans[key] || '') + '" title="' + esc(waitMsg || '') +
+        '" aria-label="' + esc(waitMsg || 'Chưa đủ số liệu') + '"><span class="mk" id="mk-' + key + '"></span></td>';
+    }
+    var j = judge(key);
+    return '<td class="ans"><input inputmode="decimal" data-ans="' + key + '" class="' + cls(j) + '" value="' + esc(state.ans[key] || '') +
+      '" aria-label="Đáp án của bạn"><span class="mk ' + cls(j) + '" id="mk-' + key + '">' + markHtml(key) + '</span></td>';
+  }
+  // Nút "Xem đáp án bảng này": chỉ hiện khi mọi ô của bảng đã có đáp án (đúng hay sai)
+  function revealCtl(tid) {
+    if (!checking() || state.check.reveal) return '';
+    var keys = Object.keys(correct).filter(function (k) { return tidOf(k) === tid; });
+    if (!keys.length) return '';
+    if (state.revealed[tid]) return '<span class="muted">Đã mở đáp án bảng này (số trong ngoặc).</span>';
+    var filled = keys.filter(function (k) { return judge(k) !== null; }).length;
+    if (filled === keys.length) return '<button class="ghost" data-reveal="' + tid + '">Xem đáp án bảng này</button>';
+    return '<span class="muted">Nhập đủ ' + keys.length + ' ô của bảng này (đã nhập ' + filled + ') để mở nút “Xem đáp án bảng này”.</span>';
+  }
+  function updateRevealCtls() {
+    document.querySelectorAll('.rv[data-tid]').forEach(function (el) { el.innerHTML = revealCtl(el.dataset.tid); });
+  }
+  function rvBox(tid) { return '<div class="rv noprint" data-tid="' + tid + '"></div>'; }
+  // Ô chỉ để tham khảo (lặp lại kết quả của bước khác): ẩn khi đang chấm bài và chưa bật hiện đáp án
+  function refCell(val, hl) { return '<td' + (hl ? ' class="hl"' : '') + '>' + (hiding() ? '—' : f4(val)) + '</td>'; }
+  function ansHead(text) { return checking() ? text + ' – đáp án của bạn' : text; }
+
+  function updateScore() {
+    var box = $('score');
+    if (!checking()) { box.style.display = 'none'; return; }
+    var keys = Object.keys(correct), ok = 0, no = 0, empty = 0;
+    keys.forEach(function (k) { var j = judge(k); if (j === true) ok++; else if (j === false) no++; else empty++; });
+    box.style.display = 'block';
+    box.innerHTML = 'Kết quả chấm: <b>' + ok + '/' + keys.length + '</b> ô đúng · ' +
+      '<span style="color:var(--bad)">' + no + ' ô sai</span> · ' + empty + ' ô chưa nhập / chờ số liệu' +
+      ' <span class="muted">(sai số cho phép ±' + String(state.check.tol).replace('.', ',') + ')</span>';
+  }
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function load() { try { var s = localStorage.getItem(KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  // ---------- định dạng số ----------
+  function f4(x) { return (Math.round(x * 10000) / 10000).toFixed(4); }
+  function fM(x) {
+    if (!isFinite(x)) return '–';
+    if (Math.abs(x) >= 1e9) return x.toExponential(3);
+    if (Math.abs(x) >= 1000) return Math.round(x).toString();
+    return x.toFixed(2);
+  }
+  function fDiff(x) {
+    if (Math.abs(x) < 0.000005) return '0.00000';
+    return Math.abs(x) < 0.001 ? x.toFixed(5) : x.toFixed(4);
+  }
+  function fFrac(x) {
+    if (!isFinite(x)) return '?';
+    var r = Math.round(x);
+    if (Math.abs(x - r) < 1e-9) return String(r);
+    var inv = 1 / x, ri = Math.round(inv);
+    if (x < 1 && Math.abs(inv - ri) < 1e-9) return '1/' + ri;
+    return x.toFixed(2);
+  }
+
+  // ---------- dựng giao diện nhập ----------
+  function pairKeys(n) { var k = []; for (var i = 0; i < n; i++) for (var j = i + 1; j < n; j++) k.push([i, j]); return k; }
+
+  function pairBlock(names, store, id) {
+    var h = '<div class="pairs"><div class="pair pairhead"><span>Yếu tố A</span><span style="text-align:center">Điểm A</span><span></span><span style="text-align:center">Điểm B</span><span style="text-align:right">Yếu tố B</span><span>Ô ma trận (A, B)</span></div>';
+    pairKeys(names.length).forEach(function (p) {
+      var key = p[0] + '-' + p[1], v = store[key] || ['', ''];
+      h += '<div class="pair" id="' + id + '-row-' + key + '">' +
+        '<span class="nm">' + esc(names[p[0]]) + '</span>' +
+        '<input inputmode="decimal" aria-label="Điểm ' + esc(names[p[0]]) + '" data-g="' + id + '" data-k="' + key + '" data-s="0" value="' + esc(v[0]) + '">' +
+        '<span class="vs">–</span>' +
+        '<input inputmode="decimal" aria-label="Điểm ' + esc(names[p[1]]) + '" data-g="' + id + '" data-k="' + key + '" data-s="1" value="' + esc(v[1]) + '">' +
+        '<span class="nm r">' + esc(names[p[1]]) + '</span>' +
+        '<span class="res" id="' + id + '-res-' + key + '"></span></div>';
+    });
+    return h + '</div>';
+  }
+
+  function buildInputs() {
+    $('alts').value = state.alts.join('\n');
+    $('crits').value = state.crits.join('\n');
+    $('pick').value = String(state.pick);
+    $('chkOn').checked = state.check.on;
+    $('chkReveal').checked = state.check.reveal;
+    $('chkTol').value = String(state.check.tol);
+    $('scaleMax').value = String(state.scaleMax).replace('.', ',');
+    renderScale();
+    var h = '';
+    state.crits.forEach(function (c, ci) {
+      h += '<div class="crit-card"><h3>Tiêu chí: ' + esc(c) + '</h3>' +
+        pairBlock(state.alts, state.altPairs[ci], 'a' + ci) +
+        '<div id="a' + ci + '-out"></div></div>';
+    });
+    $('altSections').innerHTML = h;
+    $('critSection').innerHTML = pairBlock(state.crits, state.critPairs, 'c') + '<div id="c-out"></div>';
+  }
+
+  // ---------- hiển thị kết quả một ma trận ----------
+  function renderAnalysis(names, r, label, kp) {
+    if (r.invalid.length) {
+      return '<div class="note bad">Còn ' + r.invalid.length + ' cặp chưa hợp lệ (xem các dòng tô đỏ và lý do bên cạnh). Sửa xong trang mới tính trọng số.</div>';
+    }
+    var n = names.length, h = '';
+    // ma trận so sánh cặp đôi + trọng số
+    h += '<div class="tablewrap"><table><tr><th></th>';
+    names.forEach(function (x) { h += '<th>' + esc(x) + '</th>'; });
+    h += '<th class="hl">' + ansHead('Trọng số') + '</th></tr>';
+    r.matrix.forEach(function (row, i) {
+      h += '<tr><td class="l"><b>' + esc(names[i]) + '</b></td>';
+      row.forEach(function (x) { h += '<td>' + fFrac(x) + '</td>'; });
+      h += ansCell(kp + '-' + i, r.weights[i]) + '</tr>';
+    });
+    h += '</table></div>';
+
+    var info = 'Trọng số lấy ở lần bình phương thứ ' + r.used.k;
+    if (r.nextDiff !== null) {
+      var ok = r.nextDiff < 0.001;
+      info += ' · chênh lệch lớn nhất so với lần ' + (r.used.k + 1) + ': ' + fDiff(r.nextDiff) +
+        ' <span class="badge ' + (ok ? 'ok' : 'warn') + '">' + (ok ? 'đã ổn định' : 'chưa ổn định – nên lấy lần sau') + '</span>';
+    }
+    var cr = r.consistency;
+    if (n >= 3) {
+      var crOk = cr.CR <= 0.1;
+      info += '<br>Tham khảo: λmax = ' + cr.lambda.toFixed(4) + ', CI = ' + cr.CI.toFixed(4) + ', RI = ' + cr.RI.toFixed(2) +
+        ', CR = ' + cr.CR.toFixed(4) + ' <span class="badge ' + (crOk ? 'ok' : 'warn') + '">' + (crOk ? 'CR ≤ 0,10' : 'CR > 0,10 – xem lại điểm so sánh') + '</span>';
+    }
+    h += '<p class="muted" style="font-size:.88rem">' + info + '</p>' + rvBox(kp);
+
+    // các lần bình phương
+    if (!shown(kp)) {
+      return h + '<p class="muted" style="font-size:.88rem">Chi tiết các lần bình phương được ẩn cho đến khi mở đáp án bảng này' + (isTeacher() ? ' (hoặc bật “Hiện đáp án đúng”)' : '') + '.</p>';
+    }
+    h += '<details><summary>Xem chi tiết các lần bình phương ma trận ' + esc(label) + '</summary>';
+    r.iterations.forEach(function (it) {
+      h += '<p style="margin-top:10px"><b>Ma trận bình phương lần ' + it.k + '</b>' + (it.rescaled ? ' <span class="muted">(đã chia cho cùng một số để tránh tràn số; trọng số không đổi)</span>' : '') + '</p>';
+      h += '<div class="tablewrap"><table><tr><th></th>';
+      names.forEach(function (x) { h += '<th>' + esc(x) + '</th>'; });
+      h += '<th>Tổng</th><th' + (it.k === r.used.k ? ' class="hl"' : '') + '>Trọng số</th>' + (it.diff ? '<th>So sánh ' + it.k + '/' + (it.k - 1) + '</th>' : '') + '</tr>';
+      it.matrix.forEach(function (row, i) {
+        h += '<tr><td class="l">' + esc(names[i]) + '</td>';
+        row.forEach(function (x) { h += '<td>' + fM(x) + '</td>'; });
+        h += '<td>' + fM(it.sums[i]) + '</td><td' + (it.k === r.used.k ? ' class="hl"' : '') + '>' + f4(it.weights[i]) + '</td>';
+        if (it.diff) h += '<td' + (it.diff[i] < 0 ? ' class="neg"' : '') + '>' + fDiff(it.diff[i]) + '</td>';
+        h += '</tr>';
+      });
+      h += '<tr><td class="l"></td>' + names.map(function () { return '<td></td>'; }).join('') + '<td><b>' + fM(it.total) + '</b></td><td><b>1.0000</b></td>' + (it.diff ? '<td></td>' : '') + '</tr>';
+      h += '</table></div>';
+    });
+    h += '</details>';
+    return h;
+  }
+
+  function markPairs(id, names, store, r) {
+    pairKeys(names.length).forEach(function (p) {
+      var key = p[0] + '-' + p[1];
+      var issue = pairIssue(store[key]);
+      var row = $(id + '-row-' + key), res = $(id + '-res-' + key);
+      if (!row) return;
+      row.classList.toggle('err', !!issue);
+      res.textContent = issue ? '✗ ' + issue : 'a(' + names[p[0]] + ', ' + names[p[1]] + ') = ' + fFrac(r.matrix[p[0]][p[1]]);
+    });
+  }
+
+  // ---------- tính & hiển thị toàn bộ ----------
+  function recompute() {
+    var pick = Number(state.pick);
+    correct = {};
+    // cặp vi phạm quy tắc nhập điểm được coi là chưa hợp lệ → không đưa vào ma trận
+    function valid(store) { return function (i, j) { var v = store[i + '-' + j]; return pairIssue(v) ? null : v; }; }
+    results.alt = state.crits.map(function (c, ci) {
+      var store = state.altPairs[ci];
+      var r = AHP.analyse(state.alts.length, valid(store), pick);
+      markPairs('a' + ci, state.alts, store, r);
+      $('a' + ci + '-out').innerHTML = renderAnalysis(state.alts, r, 'theo tiêu chí ' + c, 'a' + ci);
+      return r;
+    });
+    var rc = AHP.analyse(state.crits.length, valid(state.critPairs), pick);
+    markPairs('c', state.crits, state.critPairs, rc);
+    $('c-out').innerHTML = renderAnalysis(state.crits, rc, 'tiêu chí', 'c');
+    results.crit = rc;
+    renderSummary();
+    updateRevealCtls();
+    updateScore();
+    save();
+  }
+
+  function renderSummary() {
+    var missing = [];
+    results.alt.forEach(function (r, ci) { if (r.invalid.length) missing.push('tiêu chí “' + state.crits[ci] + '”'); });
+    if (results.crit.invalid.length) missing.push('so sánh các tiêu chí');
+    if (missing.length) {
+      var msg = '<div class="note">Cần nhập đủ điểm cho: ' + missing.map(esc).join('; ') + '.</div>';
+      $('step3').innerHTML = msg; $('step4').innerHTML = msg; return;
+    }
+    if (checking()) { renderStep3Stu(); renderStep4Stu(); return; }
+    var cw = results.crit.weights, aw = results.alt.map(function (r) { return r.weights; });
+    var g = AHP.aggregate(cw, aw), A = state.alts, C = state.crits;
+
+    // Bước 3 – bảng dọc như slide
+    var h = '<div class="tablewrap"><table><tr><th>Tiêu chí</th><th>Trọng số của tiêu chí so với mục tiêu</th><th style="text-align:left">Phương án</th><th>Điểm của phương án chưa có trọng số</th><th class="hl">' + ansHead('Điểm của phương án đã có trọng số') + '</th></tr>';
+    C.forEach(function (c, ci) {
+      A.forEach(function (a, ai) {
+        h += '<tr>' + (ai === 0 ? '<td class="l" rowspan="' + A.length + '"><b>' + esc(c) + '</b></td><td rowspan="' + A.length + '">' + (hiding() ? '—' : f4(cw[ci])) + '</td>' : '') +
+          '<td class="l">' + esc(a) + '</td>' + refCell(aw[ci][ai]) + ansCell('w' + ci + '-' + ai, g.weighted[ci][ai]) + '</tr>';
+      });
+    });
+    $('step3').innerHTML = h + '</table></div>';
+
+    // Bước 4 – bảng tổng
+    h = '<div class="tablewrap"><table><tr><th>Phương án</th>';
+    C.forEach(function (c) { h += '<th>' + esc(c) + '</th>'; });
+    h += '<th class="hl">' + ansHead('Tổng') + '</th><th>Xếp hạng</th></tr>';
+    var order = g.totals.map(function (t, i) { return i; }).sort(function (x, y) { return g.totals[y] - g.totals[x]; });
+    var rank = []; order.forEach(function (ai, k) { rank[ai] = k + 1; });
+    A.forEach(function (a, ai) {
+      h += '<tr><td class="l"><b>' + esc(a) + '</b></td>';
+      C.forEach(function (c, ci) { h += refCell(g.weighted[ci][ai]); });
+      h += ansCell('t' + ai, g.totals[ai]) + '<td>' + (hiding() ? '—' : rank[ai]) + '</td></tr>';
+    });
+    h += '<tr><td class="l"><b>Tổng</b></td>';
+    C.forEach(function (c, ci) { h += refCell(cw[ci]); });
+    h += refCell(g.totals.reduce(function (s, x) { return s + x; }, 0), true) + '<td></td></tr></table></div>';
+
+    if (hiding()) {
+      $('step4').innerHTML = h + '<p class="muted" style="font-size:.88rem">Các ô “—” lặp lại kết quả của bước trước nên được ẩn khi chấm bài' + (isTeacher() ? '; bật “Hiện đáp án đúng” để xem đầy đủ, kèm biểu đồ và xếp hạng' : '') + '.</p>';
+      return;
+    }
+    var max = Math.max.apply(null, g.totals);
+    h += '<div class="bars">';
+    order.forEach(function (ai) {
+      h += '<div class="bar"><span>' + esc(A[ai]) + '</span><div class="track"><div class="fill" style="width:' + (g.totals[ai] / max * 100) + '%"></div></div><span class="v">' + f4(g.totals[ai]) + '</span></div>';
+    });
+    h += '</div><p style="margin-top:12px">Phương án có tổng điểm cao nhất: <b>' + esc(A[order[0]]) + '</b> (' + f4(g.totals[order[0]]) + ').</p>';
+    $('step4').innerHTML = h;
+  }
+
+  // ---------- Bước 3–4 ở chế độ chấm bài: dựa trên chính các số sinh viên đã điền ----------
+  function stu(key) {
+    var v = state.ans[key];
+    return v == null || String(v).trim() === '' ? NaN : AHP.parseNum(v);
+  }
+  function stuTxt(key) { return isFinite(stu(key)) ? esc(String(state.ans[key]).trim()) : '—'; }
+
+  function renderStep3Stu() {
+    var A = state.alts, C = state.crits;
+    var h = '<p class="muted" style="font-size:.88rem">Cột “Trọng số của tiêu chí” lấy số bạn đã điền ở Bước 2, cột “Điểm chưa có trọng số” lấy số bạn đã điền ở Bước 1 (ô chưa điền hiện “—”). Bạn chỉ điền cột cuối; trang chấm theo tích của hai số đó.</p>';
+    h += '<div class="tablewrap"><table><tr><th>Tiêu chí</th><th>Trọng số của tiêu chí so với mục tiêu</th><th style="text-align:left">Phương án</th><th>Điểm của phương án chưa có trọng số</th><th class="hl">' + ansHead('Điểm của phương án đã có trọng số') + '</th></tr>';
+    C.forEach(function (c, ci) {
+      A.forEach(function (a, ai) {
+        var cw = stu('c-' + ci), aw = stu('a' + ci + '-' + ai);
+        h += '<tr>' + (ai === 0 ? '<td class="l" rowspan="' + A.length + '"><b>' + esc(c) + '</b></td><td rowspan="' + A.length + '">' + stuTxt('c-' + ci) + '</td>' : '') +
+          '<td class="l">' + esc(a) + '</td><td>' + stuTxt('a' + ci + '-' + ai) + '</td>' +
+          ansCell('w' + ci + '-' + ai, cw * aw, 'Điền trọng số ở Bước 1 và Bước 2 trước') + '</tr>';
+      });
+    });
+    $('step3').innerHTML = h + '</table></div>' + rvBox('w');
+  }
+
+  function renderStep4Stu() {
+    var A = state.alts, C = state.crits;
+    var h = '<p class="muted" style="font-size:.88rem">Các cột tiêu chí lấy điểm đã có trọng số bạn đã điền ở Bước 3 (ô chưa điền hiện “—”). Bạn chỉ điền cột Tổng; trang chấm theo tổng các số đó.</p>';
+    h += '<div class="tablewrap"><table><tr><th>Phương án</th>';
+    C.forEach(function (c) { h += '<th>' + esc(c) + '</th>'; });
+    h += '<th class="hl">' + ansHead('Tổng') + '</th></tr>';
+    A.forEach(function (a, ai) {
+      var sum = 0;
+      h += '<tr><td class="l"><b>' + esc(a) + '</b></td>';
+      C.forEach(function (c, ci) { sum += stu('w' + ci + '-' + ai); h += '<td>' + stuTxt('w' + ci + '-' + ai) + '</td>'; });
+      h += ansCell('t' + ai, sum, 'Điền đủ điểm đã có trọng số ở Bước 3 trước') + '</tr>';
+    });
+    $('step4').innerHTML = h + '</table></div>' + rvBox('t');
+  }
+
+  // ---------- sự kiện ----------
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.dataset && t.dataset.sd) { // sinh viên ghi bảng giải thích thang điểm
+      var rc = t.dataset.sd.split('-');
+      editDefs()[Number(rc[0])][Number(rc[1])] = t.value;
+      save();
+      return;
+    }
+    if (t.dataset && t.dataset.ans) { // sinh viên nhập đáp án: cập nhật dấu ✓/✗, không vẽ lại ô đang gõ
+      var key = t.dataset.ans, tid = tidOf(key);
+      state.ans[key] = t.value;
+      var j = judge(key), mk = $('mk-' + key);
+      t.className = cls(j);
+      mk.className = 'mk ' + cls(j);
+      mk.innerHTML = markHtml(key);
+      // Bước 3 dùng số của Bước 1–2, Bước 4 dùng số của Bước 3 → vẽ lại các bước phía sau
+      if (tid === 'w') renderStep4Stu();
+      else if (tid !== 't') renderSummary();
+      updateRevealCtls(); updateScore(); save();
+      return;
+    }
+    if (!t.dataset || !t.dataset.g) return;
+    var g = t.dataset.g, key = t.dataset.k, side = Number(t.dataset.s);
+    var store = g === 'c' ? state.critPairs : state.altPairs[Number(g.slice(1))];
+    if (!store[key]) store[key] = ['', ''];
+    store[key][side] = t.value;
+    recompute();
+  });
+
+  function readList(id) {
+    return $(id).value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+  }
+
+  // Vị trí cũ của tên thứ i trong danh sách mới: theo tên; nếu danh sách giữ nguyên số lượng và
+  // tên cũ ở cùng vị trí không còn nữa thì coi là đổi tên (giữ điểm theo vị trí).
+  function oldIndex(oldNames, newNames, i) {
+    var k = oldNames.indexOf(newNames[i]);
+    if (k < 0 && oldNames.length === newNames.length && newNames.indexOf(oldNames[i]) < 0) k = i;
+    return k;
+  }
+
+  // Giữ lại điểm đã nhập cho các cặp vẫn còn sau khi đổi danh sách
+  function remap(oldNames, newNames, store) {
+    var out = {};
+    for (var i = 0; i < newNames.length; i++) for (var j = i + 1; j < newNames.length; j++) {
+      var oi = oldIndex(oldNames, newNames, i), oj = oldIndex(oldNames, newNames, j);
+      if (oi < 0 || oj < 0) { out[i + '-' + j] = ['1', '1']; continue; }
+      var v = oi < oj ? store[oi + '-' + oj] : store[oj + '-' + oi];
+      if (!v) { out[i + '-' + j] = ['1', '1']; continue; }
+      out[i + '-' + j] = oi < oj ? v.slice() : [v[1], v[0]];
+    }
+    return out;
+  }
+
+  function listMsg(text, bad) {
+    var m = $('listMsg');
+    m.textContent = text || '';
+    m.style.color = bad ? 'var(--bad)' : '';
+  }
+
+  // Áp dụng danh sách phương án / tiêu chí đang ghi trong hai ô (tự chạy khi rời khỏi ô, hoặc bấm nút)
+  function applyLists() {
+    var alts = readList('alts'), crits = readList('crits');
+    if (alts.length < 2 || alts.length > 9 || crits.length < 2 || crits.length > 9) {
+      listMsg('Chưa cập nhật: cần từ 2 đến 9 phương án và từ 2 đến 9 tiêu chí.', true); return;
+    }
+    if (new Set(alts).size !== alts.length || new Set(crits).size !== crits.length) {
+      listMsg('Chưa cập nhật: tên phương án / tiêu chí không được trùng nhau.', true); return;
+    }
+    listMsg('');
+    if (alts.join('\n') === state.alts.join('\n') && crits.join('\n') === state.crits.join('\n')) return;
+    var altPairs = crits.map(function (c, i) {
+      var oc = oldIndex(state.crits, crits, i);
+      return remap(state.alts, alts, oc >= 0 ? state.altPairs[oc] : {});
+    });
+    state.critPairs = remap(state.crits, crits, state.critPairs);
+    state.ans = {}; state.revealed = {}; // danh sách đã đổi (đã kiểm tra ở trên) → bài khác
+    state.altPairs = altPairs; state.alts = alts; state.crits = crits;
+    buildInputs(); recompute();
+  }
+  $('apply').addEventListener('click', applyLists);
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-reveal]');
+    if (!b) return;
+    state.revealed[b.dataset.reveal] = true;
+    recompute();
+  });
+  ['alts', 'crits'].forEach(function (id) {
+    $(id).addEventListener('input', function () {
+      listMsg('Danh sách đã thay đổi – các bước sau sẽ cập nhật khi bạn rời khỏi ô này (hoặc bấm “Cập nhật danh sách”).');
+    });
+    $(id).addEventListener('change', applyLists);
+  });
+
+  $('loadEx').addEventListener('click', function () {
+    var chk = state.check, defs = state.scaleDefs;
+    state = clone(EXAMPLE); state.check = chk; state.ans = {}; state.revealed = {}; state.scaleDefs = defs;
+    buildInputs(); recompute();
+  });
+  $('scaleMax').addEventListener('input', function () {
+    var v = AHP.parseNum(this.value), ok = isFinite(v) && v > 1;
+    this.classList.toggle('err', !ok);
+    this.title = ok ? '' : 'Điểm tối đa phải là số lớn hơn 1';
+    if (!ok) return;
+    state.scaleMax = v; renderScale(); recompute();
+  });
+  $('scaleBox').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    var rows = editDefs();
+    if (b.id === 'sdAdd') rows.push(['', '', '']);
+    else if (b.dataset.sdel != null) rows.splice(Number(b.dataset.sdel), 1);
+    else return;
+    renderScale(); save();
+  });
+  $('chkOn').addEventListener('change', function () { state.check.on = this.checked; recompute(); });
+  $('chkReveal').addEventListener('change', function () { state.check.reveal = this.checked; recompute(); });
+  $('chkTol').addEventListener('change', function () { state.check.tol = Number(this.value); recompute(); });
+  $('chkClear').addEventListener('click', function () {
+    if (!confirm('Xóa tất cả đáp án bạn đã nhập?')) return;
+    state.ans = {}; state.revealed = {}; recompute();
+  });
+  $('clearAll').addEventListener('click', function () {
+    if (!confirm('Đặt lại tất cả điểm so sánh về 1 – 1?')) return;
+    state.altPairs = state.crits.map(function () { return remap([], state.alts, {}); });
+    state.critPairs = remap([], state.crits, {});
+    buildInputs(); recompute();
+  });
+  $('pick').addEventListener('change', function () { state.pick = Number(this.value); recompute(); });
+  $('print').addEventListener('click', function () {
+    document.querySelectorAll('details').forEach(function (d) { d.open = true; });
+    window.print();
+  });
+
+  applyRole(); buildInputs(); recompute();
+})();
+</script>
+</body>
+</html>
