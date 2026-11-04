@@ -8,26 +8,26 @@
 <style>
 /* Bảng màu: navy (chủ đạo) và đỏ, ưu tiên tông pastel.
    --accent* = navy (nút, liên kết, ô kết quả); --red* = đỏ (nhãn Bước, khung lưu ý).
-   --bad = đỏ đậm chỉ dùng báo lỗi; --good = xanh lá cho dấu ✓; --warn = vàng cho cảnh báo "chưa ổn định". */
+   --bad = đỏ đậm chỉ dùng báo lỗi; --good = navy đậm cho dấu ✓ và nhãn "đạt"; --warn = vàng cho cảnh báo "chưa ổn định". */
 :root{
   --bg:#f4f6fb; --card:#ffffff; --text:#1b2440; --muted:#59647f; --line:#d8deeb; --title:#26375f;
   --accent:#3a4f82; --on-accent:#ffffff; --accent-soft:#e3e9f6; --head:#eaeef8;
   --red:#962f37; --red-soft:#fbeaeb; --red-badge:#f2cdd0;
-  --warn:#8a5a00; --warn-soft:#fff3dc; --bad:#b42318; --bad-soft:#fde8e8; --good:#1a7f37; --input:#ffffff;
+  --warn:#8a5a00; --warn-soft:#fff3dc; --bad:#b42318; --bad-soft:#fde8e8; --good:#24427f; --input:#ffffff;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#11172a; --card:#182038; --text:#e5e9f3; --muted:#9ba6c0; --line:#2c3757; --title:#c9d5f2;
     --accent:#9db1e0; --on-accent:#14203d; --accent-soft:#25335a; --head:#212c4b;
     --red:#f0a9af; --red-soft:#3a2230; --red-badge:#5a2a33;
-    --warn:#f0b44c; --warn-soft:#3a2e17; --bad:#ff8a80; --bad-soft:#3b1f22; --good:#6fd38a; --input:#121a30;
+    --warn:#f0b44c; --warn-soft:#3a2e17; --bad:#ff8a80; --bad-soft:#3b1f22; --good:#b4c6ee; --input:#121a30;
   }
 }
 :root[data-theme="dark"]{
   --bg:#11172a; --card:#182038; --text:#e5e9f3; --muted:#9ba6c0; --line:#2c3757; --title:#c9d5f2;
   --accent:#9db1e0; --on-accent:#14203d; --accent-soft:#25335a; --head:#212c4b;
   --red:#f0a9af; --red-soft:#3a2230; --red-badge:#5a2a33;
-  --warn:#f0b44c; --warn-soft:#3a2e17; --bad:#ff8a80; --bad-soft:#3b1f22; --good:#6fd38a; --input:#121a30;
+  --warn:#f0b44c; --warn-soft:#3a2e17; --bad:#ff8a80; --bad-soft:#3b1f22; --good:#b4c6ee; --input:#121a30;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
