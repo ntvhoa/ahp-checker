@@ -29,7 +29,8 @@ main{max-width:1100px;margin:0 auto;padding:24px 16px 64px}
 h1{font-size:1.6rem;margin:0 0 4px}
 h2{font-size:1.2rem;margin:0 0 12px}
 h3{font-size:1.02rem;margin:0 0 10px}
-p{margin:0 0 10px}
+p{margin:0 0 10px;text-align:justify}
+footer{text-align:justify}
 .muted{color:var(--muted)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin:16px 0}
 .step{display:inline-block;background:var(--accent);color:#fff;border-radius:999px;font-size:.78rem;padding:1px 10px;margin-right:8px;vertical-align:2px}
@@ -79,7 +80,18 @@ footer{color:var(--muted);font-size:.85rem;margin-top:24px}
 .check{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;margin-top:12px;padding:12px;border:1px dashed var(--line);border-radius:8px}
 .check label.inline{display:inline-flex;gap:6px;align-items:center;font-size:.92rem;color:var(--text);margin:0}
 .rv{margin:6px 0 10px;font-size:.88rem}
+.setting{display:grid;grid-template-columns:230px 1fr;gap:12px;align-items:stretch;margin-top:16px}
+.setting .ctl{background:var(--head);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.setting .ctl label{font-weight:600;font-size:.95rem;color:var(--text);margin:0}
+.setting .ctl-line{display:flex;align-items:center;gap:8px}
+.setting .ctl input{width:72px;text-align:center;font-size:1.1rem;font-weight:600}
+.setting .ctl select{width:100%}
+.setting .note{margin:0;padding:12px 14px}
+.note.info{background:var(--accent-soft)}
+@media (max-width:640px){.setting{grid-template-columns:1fr}}
 .scaletbl td{white-space:normal;vertical-align:top}
+.scaletbl td.l{min-width:120px}
+.scaletbl td.l:last-child,.scaletbl td.l:nth-child(3){min-width:240px}
 .scaletbl input{width:100%}
 .scaletbl td.lv{width:110px}
 .scaletbl td.act{width:44px;text-align:center}
@@ -119,22 +131,38 @@ td.ans input.no{border-color:var(--bad);background:var(--bad-soft)}
     </div>
     <div class="row" style="margin-top:12px">
       <button id="apply">Cập nhật danh sách</button>
-      <span id="listMsg" style="font-size:.88rem;flex-basis:100%;order:99"></span>
-      <div>
-        <label for="scaleMax">Thang điểm: từ 1 đến</label>
-        <input id="scaleMax" inputmode="decimal" style="width:80px;text-align:center">
-      </div>
       <button id="loadEx" class="ghost">Nạp ví dụ Tom – Dick – Harry</button>
       <button id="clearAll" class="ghost">Xóa hết điểm</button>
-      <div>
+      <button id="print" class="ghost">In / lưu PDF</button>
+      <span id="listMsg" style="font-size:.88rem;flex-basis:100%;order:99"></span>
+    </div>
+
+    <!-- Thang điểm: ô khai báo ngang hàng với ghi chú -->
+    <div class="setting">
+      <div class="ctl">
+        <label for="scaleMax">Thang điểm</label>
+        <div class="ctl-line">từ 1 đến <input id="scaleMax" inputmode="decimal"></div>
+      </div>
+      <p class="note"><b>Thang điểm:</b> mặc định từ 1 đến 9 như slide. Bạn có thể điều chỉnh thang điểm ở ô “Thang điểm: từ 1 đến”. Khi đổi sang thang khác, phần giải thích mức độ quan trọng ở mục “Thang điểm trong so sánh cặp đôi” bên dưới chuyển thành bảng để bạn tự cập nhật định nghĩa và giải thích cho từng mức; bảng này được lưu cùng bài làm và in kèm khi lưu PDF.</p>
+    </div>
+    <details open>
+      <summary id="scaleSummary">Thang điểm trong so sánh cặp đôi</summary>
+      <div id="scaleBox"></div>
+      <p class="muted" style="font-size:.88rem"><b>Cách nhập:</b> mỗi cặp có hai ô như bảng trong slide. Ghi điểm vào ô của yếu tố được đánh giá cao hơn, ô của yếu tố kém hơn luôn là 1 (ví dụ “Tom 1 – Dick 4”: Dick hơn Tom mức 4). Hai ô đều là 1 nghĩa là như nhau. Mỗi ô nhận số từ 1 đến điểm tối đa của thang đã khai báo, có thể dùng số thập phân (1,2). Cặp nào vượt thang hoặc có ô thấp hơn khác 1 sẽ bị tô đỏ và chưa được tính. Ma trận được lập theo hàng ngang: ô (hàng Tom, cột Dick) = điểm Tom / điểm Dick = 1/4.</p>
+    </details>
+
+    <!-- Lần bình phương lấy trọng số: ô chọn ngang hàng với ghi chú -->
+    <div class="setting">
+      <div class="ctl">
         <label for="pick">Lấy trọng số ở lần bình phương thứ</label>
         <select id="pick">
           <option value="1">1</option><option value="2" selected>2</option><option value="3">3</option>
           <option value="4">4</option><option value="0">Lần cuối (đã hội tụ)</option>
         </select>
       </div>
-      <button id="print" class="ghost">In / lưu PDF</button>
+      <p class="note info"><b>Lần bình phương:</b> ví dụ trong slide lấy trọng số ở <b>lần bình phương thứ 2</b> (lần 3 dùng để đối chiếu “So sánh 3/2”). Chọn “Lần cuối (đã hội tụ)” để lấy trọng số khi các lần bình phương liên tiếp không còn thay đổi. Dữ liệu bạn nhập được lưu tạm trên trình duyệt của bạn.</p>
     </div>
+
     <div class="check">
       <span id="studentNote" style="display:none">Nhập đáp án của bạn vào các ô màu xanh ở Bước 1–4; trang chấm ✓/✗ từng ô (sai số cho phép ±0,001).</span>
       <span id="teacherNote" style="display:none" class="badge ok">Chế độ giảng viên</span>
@@ -148,13 +176,6 @@ td.ans input.no{border-color:var(--bad);background:var(--bad-soft)}
       <label class="inline teacher-only"><input type="checkbox" id="chkReveal"> Hiện đáp án đúng</label>
       <button id="chkClear" class="ghost">Xóa đáp án đã nhập</button>
     </div>
-    <p class="muted" style="margin-top:10px;font-size:.88rem">Ví dụ trong slide lấy trọng số ở <b>lần bình phương thứ 2</b> (lần 3 dùng để đối chiếu “So sánh 3/2”). Dữ liệu bạn nhập được lưu tạm trên trình duyệt của bạn.</p>
-
-    <details open>
-      <summary id="scaleSummary">Thang điểm trong so sánh cặp đôi</summary>
-      <div id="scaleBox"></div>
-      <p class="muted" style="font-size:.88rem"><b>Cách nhập:</b> mỗi cặp có hai ô như bảng trong slide. Ghi điểm vào ô của yếu tố được đánh giá cao hơn, ô của yếu tố kém hơn luôn là 1 (ví dụ “Tom 1 – Dick 4”: Dick hơn Tom mức 4). Hai ô đều là 1 nghĩa là như nhau. Mỗi ô nhận số từ 1 đến điểm tối đa của thang đã khai báo, có thể dùng số thập phân (1,2). Cặp nào vượt thang hoặc có ô thấp hơn khác 1 sẽ bị tô đỏ và chưa được tính. Ma trận được lập theo hàng ngang: ô (hàng Tom, cột Dick) = điểm Tom / điểm Dick = 1/4.</p>
-    </details>
   </section>
 
   <div id="score" aria-live="polite"></div>
@@ -226,7 +247,15 @@ td.ans input.no{border-color:var(--bad);background:var(--bad-soft)}
     }
   };
 
-  var state = load() || clone(EXAMPLE);
+  // Bài trống khi mở trang lần đầu: giữ tên phương án / tiêu chí của ví dụ, mọi cặp so sánh là 1 – 1
+  function blankState() {
+    var s = clone(EXAMPLE);
+    s.altPairs = s.crits.map(function () { return remap([], s.alts, {}); });
+    s.critPairs = remap([], s.crits, {});
+    return s;
+  }
+
+  var state = load() || blankState();
   var results = { alt: [], crit: null };
   var correct = {}; // khóa ô đáp án → giá trị đúng do trang tính (chỉ các ô đang hiển thị)
   var $ = function (id) { return document.getElementById(id); };

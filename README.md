@@ -7,6 +7,8 @@ Trang web tĩnh giúp sinh viên tự kiểm tra bài tính AHP:
 3. Điểm có trọng số = trọng số tiêu chí × trọng số phương án theo tiêu chí.
 4. Tổng điểm có trọng số và xếp hạng các phương án.
 
+**Khi mở trang lần đầu:** bài trống với tên phương án/tiêu chí của ví dụ (Tom, Dick, Harry; Kinh nghiệm, Trình độ, Khả năng lãnh đạo, Tuổi), mọi cặp so sánh đều là 1 – 1, chưa có đáp án nào. Nút “Nạp ví dụ Tom – Dick – Harry” nạp điểm so sánh của ví dụ trong slide.
+
 **Thang điểm và quy tắc nhập** (Bước 0): khai báo điểm tối đa của thang (mặc định 9, như slide). Mỗi ô điểm nhận số từ 1 đến điểm tối đa (cho phép số thập phân như 1,2); trong mỗi cặp, ô của yếu tố kém hơn luôn là 1. Cặp nào vượt thang, có điểm nhỏ hơn 1, hoặc có ô thấp hơn khác 1 sẽ bị tô đỏ kèm lý do và chưa được đưa vào tính toán.
 
 **Bảng giải thích thang điểm** thay đổi theo thang đã khai báo:
